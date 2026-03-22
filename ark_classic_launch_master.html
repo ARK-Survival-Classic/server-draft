@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARK Classic Cluster — Server Launch Master Document</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+
+  :root {
+    --ark-orange: #D4560A;
+    --ark-orange-light: #FF7A2F;
+    --ark-amber: #C8880A;
+    --ark-dark: #0E0D0B;
+    --ark-surface: #181610;
+    --ark-card: #1E1C16;
+    --ark-border: rgba(212,86,10,0.25);
+    --ark-border-dim: rgba(255,255,255,0.07);
+    --ark-text: #E8E0CC;
+    --ark-muted: #8A8070;
+    --ark-green: #4A8C3F;
+    --ark-green-light: #6DBF61;
+    --ark-red: #A0312A;
+    --ark-red-light: #D44B42;
+    --ark-blue: #2A5EA0;
+    --ark-blue-light: #4A8ED4;
+    --ark-purple: #5A3A8C;
+    --ark-purple-light: #8A6AC8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ark-dark);
+    color: var(--ark-text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(212,86,10,0.015) 40px, rgba(212,86,10,0.015) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(212,86,10,0.015) 40px, rgba(212,86,10,0.015) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+
+  /* Header */
+  .header {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--ark-border);
+    margin-bottom: 40px;
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--ark-orange);
+    background: rgba(212,86,10,0.12);
+    border: 1px solid var(--ark-border);
+    padding: 3px 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--ark-orange); }
+  .header-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--ark-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .header-meta-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--ark-muted);
+  }
+  .header-meta-item span { color: var(--ark-orange-light); }
+
+  /* Nav tabs */
+  .nav {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--ark-border-dim);
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    background: none;
+    border: none;
+    color: var(--ark-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover { color: var(--ark-text); }
+  .nav-btn.active { color: var(--ark-orange); border-bottom-color: var(--ark-orange); }
+
+  /* Sections */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Section header */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .section-desc {
+    color: var(--ark-muted);
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--ark-card);
+    border: 1px solid var(--ark-border-dim);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ark-orange-light);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--ark-orange);
+  }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* Stat row */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat {
+    background: rgba(212,86,10,0.08);
+    border: 1px solid var(--ark-border);
+    padding: 16px;
+    text-align: center;
+    border-radius: 4px;
+  }
+  .stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--ark-orange);
+    display: block;
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--ark-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Config blocks */
+  .config-block {
+    background: #0A0908;
+    border: 1px solid var(--ark-border-dim);
+    border-left: 3px solid var(--ark-orange);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 0 4px 4px 0;
+  }
+  .config-filename {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--ark-orange);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  pre {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #B8B0A0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  pre .key { color: var(--ark-amber); }
+  pre .val { color: var(--ark-green-light); }
+  pre .comment { color: #50483C; }
+  pre .section-header { color: var(--ark-orange-light); font-weight: bold; }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .badge-orange { background: rgba(212,86,10,0.2); color: var(--ark-orange-light); border: 1px solid rgba(212,86,10,0.4); }
+  .badge-green { background: rgba(74,140,63,0.2); color: var(--ark-green-light); border: 1px solid rgba(74,140,63,0.4); }
+  .badge-red { background: rgba(160,49,42,0.2); color: var(--ark-red-light); border: 1px solid rgba(160,49,42,0.4); }
+  .badge-blue { background: rgba(42,94,160,0.2); color: var(--ark-blue-light); border: 1px solid rgba(42,94,160,0.4); }
+  .badge-purple { background: rgba(90,58,140,0.2); color: var(--ark-purple-light); border: 1px solid rgba(90,58,140,0.4); }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ark-muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--ark-border-dim);
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--ark-text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--ark-border-dim); }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ark-orange);
+    border: 2px solid var(--ark-dark);
+  }
+  .timeline-item.done::before { background: var(--ark-green); }
+  .timeline-item.future::before { background: var(--ark-muted); }
+  .timeline-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--ark-orange);
+    margin-bottom: 2px;
+  }
+  .timeline-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .timeline-body { color: var(--ark-muted); font-size: 13px; line-height: 1.5; }
+
+  /* Rule list */
+  .rule-list { list-style: none; }
+  .rule-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--ark-text);
+    line-height: 1.5;
+  }
+  .rule-list li::before {
+    content: '▸';
+    color: var(--ark-orange);
+    font-size: 10px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .rule-list li.no::before { content: '✕'; color: var(--ark-red-light); }
+  .rule-list li.yes::before { content: '✓'; color: var(--ark-green-light); }
+
+  /* Shop item */
+  .shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 16px;
+  }
+  .shop-item-name { font-weight: 500; color: var(--ark-text); margin-bottom: 3px; }
+  .shop-item-desc { font-size: 12px; color: var(--ark-muted); }
+  .shop-item-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ark-amber);
+    white-space: nowrap;
+  }
+  .shop-item-price small {
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--ark-muted);
+    display: block;
+    text-align: right;
+  }
+
+  /* Discord channel */
+  .discord-category {
+    margin-bottom: 20px;
+  }
+  .discord-cat-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ark-muted);
+    padding: 6px 0 4px;
+    border-bottom: 1px solid var(--ark-border-dim);
+    margin-bottom: 4px;
+  }
+  .discord-channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #8a8070;
+    cursor: default;
+  }
+  .discord-channel:hover { background: rgba(255,255,255,0.04); color: var(--ark-text); }
+  .discord-channel.text::before { content: '#'; color: var(--ark-muted); font-weight: 600; }
+  .discord-channel.voice::before { content: '♪'; color: var(--ark-muted); }
+  .discord-channel.announce { color: var(--ark-orange-light); }
+  .discord-channel.announce::before { content: '📢'; font-size: 12px; }
+
+  /* Wipe schedule visual */
+  .wipe-cycle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .wipe-week {
+    background: rgba(212,86,10,0.06);
+    border: 1px solid var(--ark-border-dim);
+    border-radius: 4px;
+    padding: 12px;
+    text-align: center;
+  }
+  .wipe-week.highlight { border-color: var(--ark-orange); background: rgba(212,86,10,0.12); }
+  .wipe-week-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--ark-orange);
+    line-height: 1;
+  }
+  .wipe-week-label { font-size: 11px; color: var(--ark-muted); margin-top: 4px; }
+  .wipe-week-sub { font-size: 11px; color: var(--ark-text); margin-top: 6px; }
+
+  /* Copy btn */
+  .copy-btn {
+    float: right;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    background: rgba(212,86,10,0.1);
+    border: 1px solid var(--ark-border);
+    color: var(--ark-orange);
+    padding: 3px 10px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-top: -2px;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(212,86,10,0.2); }
+
+  /* Scroll target highlight */
+  :target { scroll-margin-top: 20px; }
+
+  /* Warning box */
+  .warning {
+    background: rgba(200,136,10,0.08);
+    border-left: 3px solid var(--ark-amber);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--ark-text);
+    border-radius: 0 4px 4px 0;
+  }
+  .warning strong { color: var(--ark-amber); }
+
+  .note {
+    background: rgba(42,94,160,0.08);
+    border-left: 3px solid var(--ark-blue);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--ark-text);
+    border-radius: 0 4px 4px 0;
+  }
+  .note strong { color: var(--ark-blue-light); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">Server Launch Master Document — v1.0</div>
+    <h1>ARK <span>Classic</span> Cluster</h1>
+    <div class="header-sub">Late-2017 Survival Evolved Experience</div>
+    <div class="header-meta">
+      <div class="header-meta-item">LAUNCH DATE: <span>APRIL 30, 2026</span></div>
+      <div class="header-meta-item">WIPE CYCLE: <span>90 DAYS</span></div>
+      <div class="header-meta-item">TRIBE LIMIT: <span>4 PLAYERS</span></div>
+      <div class="header-meta-item">TEK: <span>DISABLED</span></div>
+      <div class="header-meta-item">SERVERS: <span>5 MAPS (KAMATERA)</span></div>
+      <div class="header-meta-item">COST: <span>$1,000/MO · $3,000/WIPE</span></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('overview')">Overview</button>
+    <button class="nav-btn" onclick="showTab('infra')">Infrastructure</button>
+    <button class="nav-btn" onclick="showTab('configs')">Server Configs</button>
+    <button class="nav-btn" onclick="showTab('rules')">Rules & Mechanics</button>
+    <button class="nav-btn" onclick="showTab('shop')">Shop & Kits</button>
+    <button class="nav-btn" onclick="showTab('discord')">Discord</button>
+    <button class="nav-btn" onclick="showTab('marketing')">Marketing</button>
+    <button class="nav-btn" onclick="showTab('timeline')">Timeline</button>
+  </div>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <div class="section active" id="section-overview">
+    <div class="section-title">Server Overview</div>
+    <div class="section-desc">The complete vision for ARK Classic Cluster — a progressive, late-2017 ERA server built for players who miss when ARK was a dinosaur game.</div>
+
+    <div class="stat-row">
+      <div class="stat"><span class="stat-val">10x</span><span class="stat-label">Harvest</span></div>
+      <div class="stat"><span class="stat-val">8x</span><span class="stat-label">XP</span></div>
+      <div class="stat"><span class="stat-val">10x</span><span class="stat-label">Taming</span></div>
+      <div class="stat"><span class="stat-val">15x</span><span class="stat-label">Breeding</span></div>
+      <div class="stat"><span class="stat-val">20x</span><span class="stat-label">Egg Hatch</span></div>
+      <div class="stat"><span class="stat-val">4</span><span class="stat-label">Tribe Max</span></div>
+      <div class="stat"><span class="stat-val">90</span><span class="stat-label">Day Wipe</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">The Philosophy</div>
+        <p style="font-size:13px; color: var(--ark-muted); line-height:1.7; margin-bottom:12px;">
+          A dinosaur game should never have become so un-simple. This cluster strips everything back to the era before flying whales and healing owls — back when ARK was about land bases, cave spots, and obelisk warfare.
+        </p>
+        <p style="font-size:13px; color: var(--ark-muted); line-height:1.7;">
+          Designed for players with jobs. Slow progression, safe start windows, committed base spots — everyone gets a fighting chance regardless of how many hours they can grind.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">Wipe Progression (WoW Classic Model)</div>
+        <p style="font-size:13px; color: var(--ark-muted); margin-bottom:12px;">Each 90-day wipe introduces the next era of ARK history exactly as it launched:</p>
+        <table>
+          <tr><th>Wipe</th><th>Maps Available</th><th>Era</th></tr>
+          <tr><td><span class="badge badge-green">WIPE 1</span></td><td>Island, The Center</td><td>2015–2016</td></tr>
+          <tr><td><span class="badge badge-orange">WIPE 2</span></td><td>+ Scorched Earth</td><td>Sept 2016</td></tr>
+          <tr><td><span class="badge badge-orange">WIPE 3</span></td><td>+ Ragnarok</td><td>Aug 2017</td></tr>
+          <tr><td><span class="badge badge-blue">WIPE 4</span></td><td>+ Aberration (Wk 4)</td><td>Dec 2017</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Level Cap Progression (Week by Week)</div>
+      <div class="wipe-cycle">
+        <div class="wipe-week highlight">
+          <div class="wipe-week-num">50</div>
+          <div class="wipe-week-label">Week 1</div>
+          <div class="wipe-week-sub">Max Level<br><span class="badge badge-red" style="font-size:9px;">RAID LOCK 48HR</span></div>
+        </div>
+        <div class="wipe-week">
+          <div class="wipe-week-num">75</div>
+          <div class="wipe-week-label">Week 2</div>
+          <div class="wipe-week-sub">Max Level<br>Raids enabled</div>
+        </div>
+        <div class="wipe-week">
+          <div class="wipe-week-num">85</div>
+          <div class="wipe-week-label">Week 3</div>
+          <div class="wipe-week-sub">Max Level<br>All cluster open</div>
+        </div>
+        <div class="wipe-week">
+          <div class="wipe-week-num">100</div>
+          <div class="wipe-week-label">Week 4+</div>
+          <div class="wipe-week-sub">Max Level<br>Aberration opens</div>
+        </div>
+        <div class="wipe-week">
+          <div class="wipe-week-num">105</div>
+          <div class="wipe-week-label">Week 6+</div>
+          <div class="wipe-week-sub">Max Level<br>Mid-wipe grind</div>
+        </div>
+        <div class="wipe-week">
+          <div class="wipe-week-num">120</div>
+          <div class="wipe-week-label">Week 10+</div>
+          <div class="wipe-week-sub">Max Level<br>End-wipe meta</div>
+        </div>
+      </div>
+      <div class="note"><strong>Note:</strong> Engineered XP multiplier adjustments each week to hit these caps. Players hit cap naturally through normal play — not a hard block, managed via XP curve tuning in Game.ini.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Overflow Cluster Policy</div>
+      <p style="font-size:13px; color:var(--ark-muted); line-height:1.7;">
+        If population maxes and queue exceeds acceptable wait times, a new identical cluster opens the following <strong style="color:var(--ark-text)">Saturday</strong>. New cluster launches 2 weeks offset — it joins the main cluster at month 2 (after its own raid lock period completes), merging into the broader economy. This prevents overpopulation while keeping both clusters healthy.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================== INFRASTRUCTURE ===================== -->
+  <div class="section" id="section-infra">
+    <div class="section-title">Infrastructure</div>
+    <div class="section-desc">Kamatera VPS setup — $1,000/month operating cost, $3,000 per wipe (3 months). One cluster of 5 map servers.</div>
+
+    <div class="warning"><strong>Action Required:</strong> Purchase servers at kamatera.com. All steps below require you to execute on the Kamatera dashboard. Recommended: Create a Kamatera account, select cloud servers in a US-East or EU datacenter with low latency to your target playerbase.</div>
+
+    <div class="card">
+      <div class="card-title">Server Specifications (Per Map)</div>
+      <table>
+        <tr><th>Map</th><th>RAM</th><th>CPU</th><th>Storage</th><th>Slot Cost Est.</th><th>Notes</th></tr>
+        <tr><td><span class="badge badge-orange">The Island</span></td><td>16GB</td><td>8 vCPU</td><td>200GB SSD</td><td>~$180/mo</td><td>Main hub, highest pop</td></tr>
+        <tr><td><span class="badge badge-orange">Scorched Earth</span></td><td>12GB</td><td>6 vCPU</td><td>150GB SSD</td><td>~$140/mo</td><td>Wyvern eco, paid DLC</td></tr>
+        <tr><td><span class="badge badge-orange">The Center</span></td><td>12GB</td><td>6 vCPU</td><td>150GB SSD</td><td>~$140/mo</td><td>Free map, balanced</td></tr>
+        <tr><td><span class="badge badge-orange">Ragnarok</span></td><td>16GB</td><td>8 vCPU</td><td>200GB SSD</td><td>~$180/mo</td><td>Largest map, high RAM</td></tr>
+        <tr><td><span class="badge badge-blue">Aberration</span></td><td>12GB</td><td>6 vCPU</td><td>150GB SSD</td><td>~$140/mo</td><td>Opens Week 4 of Wipe 4</td></tr>
+        <tr><td><strong>Management VPS</strong></td><td>4GB</td><td>2 vCPU</td><td>50GB SSD</td><td>~$40/mo</td><td>Discord bot, backups, RCON</td></tr>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Required Software Stack</div>
+        <ul class="rule-list">
+          <li>ARK: Survival Evolved Dedicated Server (SteamCMD)</li>
+          <li>ARKServerManager or LinuxGSM for management</li>
+          <li>ArkShop (ShooterGame plugin) for in-game shop</li>
+          <li>Tribe Manager plugin for tribe banner + raid block</li>
+          <li>Discord-ARK bot (ArkBot or custom webhook)</li>
+          <li>RCON tool for remote admin (mcrcon or similar)</li>
+          <li>Automated backup script (cron, 6hr intervals)</li>
+          <li>nginx reverse proxy for RCON panel (optional)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Cluster Network Setup</div>
+        <ul class="rule-list">
+          <li>All maps share one ClusterID in GameUserSettings.ini</li>
+          <li>ClusterDirOverride points to shared NFS mount or S3 bucket</li>
+          <li>Player data (character/dino transfer) flows through cluster dir</li>
+          <li>Port range: 7777–7780 UDP per server (map each to unique port)</li>
+          <li>RCON port: 27020 per server (firewall to admin IPs only)</li>
+          <li>Steam query port: 27015 per server</li>
+          <li>Firewall: block all except 7777-7780 UDP, 27015 UDP, 27020 TCP</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">SteamCMD Install Script</div>
+      <button class="copy-btn" onclick="copyText('steamcmd-script')">COPY</button>
+      <div class="config-block">
+        <div class="config-filename">// bash — run as dedicated ark user, not root</div>
+        <pre id="steamcmd-script">
+# Install SteamCMD
+sudo apt-get update && sudo apt-get install -y lib32gcc-s1 steamcmd
+
+# Create ARK directories
+mkdir -p /home/ark/servers/{island,scorched,center,ragnarok,aberration}
+mkdir -p /home/ark/cluster
+
+# Install ARK Dedicated Server (repeat for each map with different dir)
+steamcmd +force_install_dir /home/ark/servers/island \
+  +login anonymous \
+  +app_update 376030 validate \
+  +quit
+
+# Start command template (Island example)
+/home/ark/servers/island/ShooterGame/Binaries/Linux/ShooterGameServer \
+  TheIsland?listen \
+  ?SessionName="ARK Classic - The Island" \
+  ?MaxPlayers=70 \
+  ?ServerPassword= \
+  ?ServerAdminPassword=YOUR_ADMIN_PASS \
+  ?RCONEnabled=True \
+  ?RCONPort=27020 \
+  ?Port=7777 \
+  ?QueryPort=27015 \
+  ?ClusterID=arkclassic2026 \
+  ?ClusterDirOverride=/home/ark/cluster \
+  -NoBattlEye \
+  -UseBattlEye \
+  -nosteamclient \
+  -game \
+  -server \
+  -log \
+  -ForceRespawnDinos \
+  -AutoManagedMods</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONFIGS ===================== -->
+  <div class="section" id="section-configs">
+    <div class="section-title">Server Configuration Files</div>
+    <div class="section-desc">Complete GameUserSettings.ini and Game.ini files. These are tuned for late-2017 meta with progressive level caps and no TEK.</div>
+
+    <div class="card">
+      <div class="card-title">GameUserSettings.ini — All Maps (Base)</div>
+      <button class="copy-btn" onclick="copyText('gus-config')">COPY</button>
+      <div class="config-block">
+        <div class="config-filename">// ShooterGame/Saved/Config/WindowsServer/GameUserSettings.ini</div>
+        <pre id="gus-config">
+[ServerSettings]
+<span class="comment">; ═══════════════════════════════════════════</span>
+<span class="comment">;  ARK CLASSIC CLUSTER — GameUserSettings.ini</span>
+<span class="comment">; ═══════════════════════════════════════════</span>
+
+<span class="comment">; Core server identity</span>
+<span class="key">ServerPassword</span>=<span class="val"></span>
+<span class="key">ServerAdminPassword</span>=<span class="val">CHANGE_THIS_ADMIN_PASSWORD</span>
+<span class="key">SpectatorPassword</span>=<span class="val">CHANGE_THIS_SPEC_PASSWORD</span>
+<span class="key">MaxPlayers</span>=<span class="val">70</span>
+<span class="key">RCONEnabled</span>=<span class="val">True</span>
+<span class="key">RCONPort</span>=<span class="val">27020</span>
+
+<span class="comment">; Rates</span>
+<span class="key">HarvestAmountMultiplier</span>=<span class="val">10.0</span>
+<span class="key">XPMultiplier</span>=<span class="val">8.0</span>
+<span class="key">TamingSpeedMultiplier</span>=<span class="val">10.0</span>
+<span class="key">MatingIntervalMultiplier</span>=<span class="val">0.5</span>
+<span class="key">EggHatchSpeedMultiplier</span>=<span class="val">20.0</span>
+<span class="key">BabyMatureSpeedMultiplier</span>=<span class="val">15.0</span>
+<span class="key">BabyFoodConsumptionSpeedMultiplier</span>=<span class="val">1.0</span>
+<span class="key">CropGrowthSpeedMultiplier</span>=<span class="val">10.0</span>
+<span class="key">FishingLootQualityMultiplier</span>=<span class="val">8.0</span>
+<span class="key">HarvestHealthMultiplier</span>=<span class="val">2.0</span>
+<span class="key">ResourceRespawnPeriodMultiplier</span>=<span class="val">0.5</span>
+<span class="key">PlayerCharacterWaterDrainMultiplier</span>=<span class="val">0.5</span>
+<span class="key">PlayerCharacterFoodDrainMultiplier</span>=<span class="val">0.5</span>
+<span class="key">DinoCharacterFoodDrainMultiplier</span>=<span class="val">0.5</span>
+<span class="key">PlayerCharacterStaminaDrainMultiplier</span>=<span class="val">0.8</span>
+
+<span class="comment">; Supply drops</span>
+<span class="key">SupplyCrateLootQualityMultiplier</span>=<span class="val">1.75</span>
+
+<span class="comment">; PvP settings</span>
+<span class="key">PvPZoneStructureDamageMultiplier</span>=<span class="val">6.0</span>
+<span class="key">StructureDamageMultiplier</span>=<span class="val">1.0</span>
+<span class="key">PlayerDamageMultiplier</span>=<span class="val">1.0</span>
+<span class="key">DinoTurretDamageMultiplier</span>=<span class="val">2.5</span>
+<span class="comment">; ^^ 2.5x turret damage — see solo rules for 4x override</span>
+
+<span class="comment">; Tribe settings</span>
+<span class="key">MaxTribeLogs</span>=<span class="val">100</span>
+<span class="key">PreventTribeAlliances</span>=<span class="val">True</span>
+<span class="key">TribeLogDestroyedEnemyStructures</span>=<span class="val">True</span>
+
+<span class="comment">; World settings</span>
+<span class="key">AllowAnyoneBabyImprintCuddle</span>=<span class="val">True</span>
+<span class="key">BabyImprintingStatScaleMultiplier</span>=<span class="val">1.0</span>
+<span class="key">DisableWeatherFog</span>=<span class="val">False</span>
+<span class="key">AllowCryoFridgeOnSaddle</span>=<span class="val">False</span>
+<span class="key">EnableCryopodNerf</span>=<span class="val">False</span>
+<span class="key">AllowFlyerCarryPvE</span>=<span class="val">False</span>
+<span class="key">AllowFlyingStaminaRecovery</span>=<span class="val">False</span>
+<span class="key">AllowMultipleAttachedC4</span>=<span class="val">False</span>
+<span class="key">AllowRaidDinoFeeding</span>=<span class="val">False</span>
+<span class="key">TheMaxStructuresInRange</span>=<span class="val">6000</span>
+<span class="key">MaxStructuresInSmallRadius</span>=<span class="val">1500</span>
+<span class="key">NewMaxStructuresInRange</span>=<span class="val">6000</span>
+<span class="key">bForceCanRideFliers</span>=<span class="val">False</span>
+<span class="key">OverrideMaxExperiencePointsPlayer</span>=<span class="val">100000</span>
+<span class="comment">; ^^ Adjust per week via RCON to enforce level cap curve</span>
+
+<span class="comment">; QoL</span>
+<span class="key">ShowMapPlayerLocation</span>=<span class="val">True</span>
+<span class="key">AllowThirdPersonPlayer</span>=<span class="val">True</span>
+<span class="key">AllowCaveFlyers</span>=<span class="val">False</span>
+<span class="key">EnablePVPGamma</span>=<span class="val">True</span>
+<span class="key">GlobalSpoilingTimeMultiplier</span>=<span class="val">2.0</span>
+<span class="key">GlobalItemDecompositionTimeMultiplier</span>=<span class="val">2.0</span>
+<span class="key">GlobalCorpseDecompositionTimeMultiplier</span>=<span class="val">4.0</span>
+<span class="key">PerPlatformMaxStructuresMultiplier</span>=<span class="val">1.0</span>
+<span class="key">AutoDestroyDecayedDinos</span>=<span class="val">True</span>
+<span class="key">AutoSavePeriodMinutes</span>=<span class="val">15.0</span>
+<span class="key">KickIdlePlayersPeriod</span>=<span class="val">3600</span>
+
+[/Script/ShooterGame.ShooterGameUserSettings]
+<span class="key">MasterAudioVolume</span>=<span class="val">1.0</span>
+<span class="key">MusicAudioVolume</span>=<span class="val">0.8</span>
+
+[SessionSettings]
+<span class="key">SessionName</span>=<span class="val">ARK Classic | The Island | No TEK | 10x Tame | Classic PvP</span>
+<span class="key">MultiHome</span>=<span class="val">0.0.0.0</span>
+<span class="key">QueryPort</span>=<span class="val">27015</span>
+<span class="comment">; Change SessionName per map server</span>
+
+[MessageOfTheDay]
+<span class="key">Message</span>=<span class="val">Welcome to ARK Classic. No TEK. Tribe limit 4. Raid block 48hrs after wipe. Classic rules apply. discord.gg/YOURINVITE</span>
+<span class="key">Duration</span>=<span class="val">20</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Game.ini — Creature, Engram & Loot Tuning</div>
+      <button class="copy-btn" onclick="copyText('game-config')">COPY</button>
+      <div class="config-block">
+        <div class="config-filename">// ShooterGame/Saved/Config/WindowsServer/Game.ini</div>
+        <pre id="game-config">
+[/script/shootergame.shootergamemode]
+<span class="comment">; ═══════════════════════════════════════════</span>
+<span class="comment">;  ARK CLASSIC — Game.ini</span>
+<span class="comment">;  Late-2017 meta tuning — No TEK engrams</span>
+<span class="comment">; ═══════════════════════════════════════════</span>
+
+<span class="comment">; ── TRIBE SETTINGS ──────────────────────────</span>
+<span class="key">MaxTribeSize</span>=<span class="val">4</span>
+<span class="key">MaxPersonalTamedDinos</span>=<span class="val">500</span>
+<span class="key">MaxAlliancesPerTribe</span>=<span class="val">0</span>
+
+<span class="comment">; ── STAT CLAMPS (prevent post-2017 creep) ──</span>
+<span class="key">PlayerBaseStatMultipliers[0]</span>=<span class="val">1.0</span>  <span class="comment">; Health</span>
+<span class="key">PlayerBaseStatMultipliers[1]</span>=<span class="val">1.0</span>  <span class="comment">; Stamina</span>
+<span class="key">PlayerBaseStatMultipliers[3]</span>=<span class="val">1.0</span>  <span class="comment">; Oxygen</span>
+<span class="key">PlayerBaseStatMultipliers[4]</span>=<span class="val">1.0</span>  <span class="comment">; Food</span>
+<span class="key">PlayerBaseStatMultipliers[7]</span>=<span class="val">1.0</span>  <span class="comment">; Weight</span>
+<span class="key">PerLevelStatsMultiplier_Player[7]</span>=<span class="val">1.5</span>  <span class="comment">; Weight per lvl (solo QoL)</span>
+
+<span class="comment">; ── TEK ENGRAM REMOVAL ──────────────────────</span>
+<span class="comment">; Disable all TEK engrams (listed by engram ID)</span>
+<span class="comment">; Full list — adjust if adding any DLC exceptions</span>
+<span class="key">EngramEntryAutoUnlocks</span>=<span class="val"></span>
+<span class="key">bOnlyAllowSpecifiedEngrams</span>=<span class="val">False</span>
+<span class="comment">; Use plugin (ArkShop/Omega) to block TEK crafting</span>
+<span class="comment">; OR set individual blueprint overrides below:</span>
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekReplicator_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekGenerator_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekTransmitter_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekTrough_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekTurret_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekSword_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekHelmet_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekChestpiece_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekLeggings_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekBoots_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekGloves_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+OverrideNamedEngramEntries=(EngramClassName="EngramEntry_TekRifle_C",EngramHidden=True,EngramPointsCost=0,EngramLevelRequirement=200,RemoveEngramPreReq=True)
+
+<span class="comment">; ── LOOT POOL OVERRIDES (Classic feel) ──────</span>
+<span class="comment">; Increase ascendant/mastercraft drop chance in drops</span>
+<span class="key">SupplyCrateLootQualityMultiplier</span>=<span class="val">1.75</span>
+<span class="comment">; World drops — weight toward useful gear, less junk</span>
+ConfigOverrideItemMaxQuantity=(ItemClassString="PrimalItemConsumable_RawMeat_C",Quantity=(MaxItemQuantity=1,bForceBlueprint=False))
+
+<span class="comment">; ── DINO LEVELS ─────────────────────────────</span>
+<span class="key">DinoClassDamageMultipliers</span>=<span class="val"></span>
+<span class="key">TamedDinoClassDamageMultipliers</span>=<span class="val"></span>
+<span class="key">DinoCountMultiplier</span>=<span class="val">1.0</span>
+<span class="key">MaxDinoLevel</span>=<span class="val">150</span>  <span class="comment">; Classic cap — no 180/190 modded dinos</span>
+<span class="key">WildDinoCharacterFoodDrainMultiplier</span>=<span class="val">1.0</span>
+
+<span class="comment">; ── SOLO PLAYER TRIBE SETTINGS ──────────────</span>
+<span class="comment">; Solo tribes flagged via plugin — these are the</span>
+<span class="comment">; base overrides applied to solo-designated accounts:</span>
+<span class="comment">; MaxTribeSize=1 (plugin enforced via tribe flag)</span>
+<span class="comment">; DinoTurretDamageMultiplier=4.0 (applied to solo tribe structures)</span>
+<span class="comment">; ORP enabled (see plugin config below)</span>
+<span class="comment">; Encumberment weight bonus applied via stat override</span>
+
+<span class="comment">; ── DECAY TIMERS ────────────────────────────</span>
+<span class="key">PvPStructureDecay</span>=<span class="val">True</span>
+<span class="key">AutoDestroyStructures</span>=<span class="val">True</span>
+<span class="key">DisableStructureDecayPvE</span>=<span class="val">False</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tribe Banner + Raid Block Plugin Config</div>
+      <button class="copy-btn" onclick="copyText('plugin-config')">COPY</button>
+      <div class="config-block">
+        <div class="config-filename">// ArkShop / TribeManager Plugin — config.json</div>
+        <pre id="plugin-config">
+{
+  <span class="key">"TribeBanner"</span>: {
+    <span class="key">"Enabled"</span>: <span class="val">true</span>,
+    <span class="key">"RequiredItem"</span>: <span class="val">"PrimalItemStructure_Flag_C"</span>,
+    <span class="key">"BannerDisplayTribeName"</span>: <span class="val">true</span>,
+    <span class="key">"BannerDisplayTribeSize"</span>: <span class="val">true</span>,
+    <span class="key">"BannerRangeDisplay"</span>: <span class="val">5000</span>,
+    <span class="key">"OnlyOneActiveBannerPerTribe"</span>: <span class="val">true</span>,
+    <span class="comment">// Banner placement claims a "home territory" zone</span>
+    <span class="key">"ClaimRadius"</span>: <span class="val">0</span>,
+    <span class="comment">// Banner is purely cosmetic/identifier — not a claim item</span>
+    <span class="key">"BannerDestroysOnTribeWipe"</span>: <span class="val">true</span>
+  },
+  <span class="key">"RaidBlock"</span>: {
+    <span class="key">"Enabled"</span>: <span class="val">true</span>,
+    <span class="key">"RaidBlockOnStructureDamage"</span>: <span class="val">true</span>,
+    <span class="key">"RaidBlockOnPlayerDamage"</span>: <span class="val">false</span>,
+    <span class="key">"RaidBlockDurationSeconds"</span>: <span class="val">3600</span>,
+    <span class="comment">// 1 hour raid block after initial hit — prevents log-off defenses</span>
+    <span class="key">"RaidBlockNotifyDiscord"</span>: <span class="val">true</span>,
+    <span class="key">"RaidBlockDiscordWebhook"</span>: <span class="val">"https://discord.com/api/webhooks/YOUR_WEBHOOK"</span>,
+    <span class="key">"WipeStartRaidLockDurationHours"</span>: <span class="val">48</span>,
+    <span class="comment">// 48hr absolute raid lock at wipe start — NO structure damage allowed</span>
+    <span class="key">"WipeRaidLockEndNotify"</span>: <span class="val">true</span>,
+    <span class="key">"PostRaidLockMessage"</span>: <span class="val">"Raid lock has ended. PvP is now active. Good luck, survivors."</span>
+  },
+  <span class="key">"SoloPlayer"</span>: {
+    <span class="key">"Enabled"</span>: <span class="val">true</span>,
+    <span class="key">"SoloTribeMaxSize"</span>: <span class="val">1</span>,
+    <span class="key">"SoloTurretMultiplier"</span>: <span class="val">4.0</span>,
+    <span class="key">"SoloORPEnabled"</span>: <span class="val">true</span>,
+    <span class="key">"SoloORPActivationSeconds"</span>: <span class="val">1800</span>,
+    <span class="comment">// ORP activates 30 minutes after last solo player logs off</span>
+    <span class="key">"SoloWeightBonusMultiplier"</span>: <span class="val">2.0</span>,
+    <span class="key">"SoloCanSwitchViaNonSolo"</span>: <span class="val">false</span>,
+    <span class="key">"SoloSwitchRequiresAdmin"</span>: <span class="val">true</span>,
+    <span class="key">"AdminDiscordChannel"</span>: <span class="val">"#admin-requests"</span>
+  },
+  <span class="key">"BaseSpotRules"</span>: {
+    <span class="key">"MaxClaimedSpotsPerTribe"</span>: <span class="val">1</span>,
+    <span class="comment">// During raid lock — enforced by admin, not plugin</span>
+    <span class="key">"PillarSpamBanDurationDays"</span>: <span class="val">7</span>,
+    <span class="key">"PillarSpamMonitorEnabled"</span>: <span class="val">true</span>
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RULES ===================== -->
+  <div class="section" id="section-rules">
+    <div class="section-title">Rules & Mechanics</div>
+    <div class="section-desc">Server rules, PvP mechanics, solo player system, and map exclusion zones.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">General Server Rules</div>
+        <ul class="rule-list">
+          <li class="no">No TEK tier — engrams disabled server-side</li>
+          <li class="no">No alliances (PreventTribeAlliances=True)</li>
+          <li class="no">No pillar spamming outside your own base — 7-day ban</li>
+          <li class="no">No meshing, duping, or exploit abuse — permanent ban</li>
+          <li class="no">No offline raiding during ORP (solo players only)</li>
+          <li class="no">No claiming more than 1 prime base spot during raid lock</li>
+          <li class="yes">Build freedom is encouraged everywhere</li>
+          <li class="yes">Land bases, cave bases, obelisk area bases — all viable</li>
+          <li class="yes">Raidable rat holes are permitted (just not unraidable ones)</li>
+          <li class="yes">Griefing reports handled by admin in Discord</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Raid Rules</div>
+        <ul class="rule-list">
+          <li class="no">No raiding during the 48hr wipe-start raid lock</li>
+          <li class="no">No solo player raiding while their ORP is active</li>
+          <li>Raid blocking (1hr window) activates on structure damage</li>
+          <li>Raid lock breaks the moment you log on during ORP</li>
+          <li>No body-camping beyond 30 minutes after raid ends</li>
+          <li>Wiping a tribe's base does not entitle you to their tames</li>
+          <li>Discord #raid-reports channel for disputes</li>
+          <li class="yes">Obelisk control and fighting is fully encouraged</li>
+          <li class="yes">Cave PvP is allowed and encouraged</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Map Exclusion Zones — Unraidable Spot Blocking</div>
+      <p style="font-size:13px; color:var(--ark-muted); margin-bottom:14px;">The following coordinates are admin-blocked via invisible pillars or no-build zones. These are the classic ARK "rat holes" that were genuinely unraidable due to mesh geometry.</p>
+      <table>
+        <tr><th>Map</th><th>Location</th><th>Coords</th><th>Reason</th></tr>
+        <tr><td><span class="badge badge-orange">Island</span></td><td>South Ice Cave entrance ceiling</td><td>37, 47</td><td>Mesh build</td></tr>
+        <tr><td><span class="badge badge-orange">Island</span></td><td>Swamp Cave upper ledge</td><td>62, 36</td><td>Unreachable angle</td></tr>
+        <tr><td><span class="badge badge-orange">Island</span></td><td>Lava Cave ceiling pocket</td><td>64, 88</td><td>Inside terrain</td></tr>
+        <tr><td><span class="badge badge-orange">Island</span></td><td>North underwater cave ceiling</td><td>18, 23</td><td>No-path access</td></tr>
+        <tr><td><span class="badge badge-blue">Center</span></td><td>Floating island underside</td><td>32, 32</td><td>Unreachable base</td></tr>
+        <tr><td><span class="badge badge-blue">Center</span></td><td>Deep ocean cave rear pocket</td><td>20, 77</td><td>Mesh exploit</td></tr>
+        <tr><td><span class="badge badge-purple">Ragnarok</span></td><td>Highland cave back wall ledge</td><td>55, 80</td><td>Invis ceiling</td></tr>
+        <tr><td><span class="badge badge-purple">Ragnarok</span></td><td>Ice dungeon side tunnel</td><td>09, 55</td><td>Geometry pocket</td></tr>
+        <tr><td><span class="badge badge-red">Aberration</span></td><td>Blue zone upper cliff face</td><td>25, 38</td><td>Unreachable face</td></tr>
+      </table>
+      <div class="note" style="margin-top:14px"><strong>Admin Note:</strong> Place invisible, indestructible pillars at these coordinates on server launch using admin spawn commands. Coordinate with server management tool or deploy via RCON batch script.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Solo Player System</div>
+      <div class="grid-2" style="gap:12px">
+        <div>
+          <p style="font-size:13px; color:var(--ark-muted); margin-bottom:12px;">Solo designation is opt-in. Once applied, it cannot be self-removed — requires admin via Discord.</p>
+          <ul class="rule-list">
+            <li>Max tribe size: 1 (plugin enforced)</li>
+            <li>Turrets deal 4x damage to attackers</li>
+            <li>ORP activates 30 min after logout</li>
+            <li>2x weight encumbrance multiplier</li>
+            <li>Solo kit available in shop (see Shop tab)</li>
+            <li>Can request switch to group via #admin-requests</li>
+            <li>Switch removes solo benefits immediately</li>
+          </ul>
+        </div>
+        <div>
+          <div class="config-block" style="margin:0">
+            <div class="config-filename">// How to opt-in as solo player:</div>
+            <pre style="font-size:12px">
+1. Join Discord
+2. Open ticket in #solo-request
+3. Admin flags your Steam64 ID
+4. Relog — solo benefits active
+
+To switch from solo to group:
+1. Open #admin-requests ticket
+2. Admin removes flag
+3. Tribe benefits reset immediately
+4. You cannot re-apply solo same wipe</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Turret Damage Reference</div>
+      <table>
+        <tr><th>Scenario</th><th>Turret Multiplier</th><th>Notes</th></tr>
+        <tr><td>Standard tribe (2-4 players)</td><td><span class="badge badge-orange">2.5x</span></td><td>Base server value via DinoTurretDamageMultiplier</td></tr>
+        <tr><td>Solo player structure</td><td><span class="badge badge-red">4x</span></td><td>Plugin override when solo flag active</td></tr>
+        <tr><td>During raid lock (first 48hrs)</td><td><span class="badge badge-green">Disabled</span></td><td>Structure damage off — no need for turret buff</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== SHOP ===================== -->
+  <div class="section" id="section-shop">
+    <div class="section-title">In-Game Shop & Kits</div>
+    <div class="section-desc">ArkShop currency: ARK Points (AP). Earned by time played and via store purchase. No pay-to-win items — cosmetic and recovery only.</div>
+
+    <div class="warning"><strong>Monetisation Policy:</strong> No items that give direct PvP advantage. Kits are convenience and time-saving only. Paid items are cosmetic or recovery-grade. Employed player perks are social/role based, not power based.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Starter Kit — Free (Once Per Wipe)</div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Stone Foundations x20</div><div class="shop-item-desc">Get your first base going</div></div>
+          <div class="shop-item-price">FREE<small>once/wipe</small></div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Raw Meat x100</div><div class="shop-item-desc">Early survival food</div></div>
+          <div class="shop-item-price">FREE</div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Metal Pick + Metal Hatchet</div><div class="shop-item-desc">Basic tools to hit the ground running</div></div>
+          <div class="shop-item-price">FREE</div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Sleeping Bag x5</div><div class="shop-item-desc">Spawn protection basics</div></div>
+          <div class="shop-item-price">FREE</div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Stimulant x30</div><div class="shop-item-desc">Classic QoL essential</div></div>
+          <div class="shop-item-price">FREE</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Solo Player Kit — Free for Solo Flagged (Weekly)</div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Flak Armor Set (apprentice)</div><div class="shop-item-desc">Solo survival baseline — not ascendant</div></div>
+          <div class="shop-item-price">FREE<small>solo only</small></div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Crossbow (journeyman)</div><div class="shop-item-desc">Classic ranged weapon</div></div>
+          <div class="shop-item-price">FREE</div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Ankylosaurus tame voucher</div><div class="shop-item-desc">Admin-spawns an Anky — level 100 wild</div></div>
+          <div class="shop-item-price">FREE<small>once/wipe</small></div>
+        </div>
+        <div class="shop-item">
+          <div><div class="shop-item-name">Extra weight stimpack</div><div class="shop-item-desc">+500 base weight, stacks once</div></div>
+          <div class="shop-item-price">FREE<small>solo/wk</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">General Shop — ARK Points (AP)</div>
+      <p style="font-size:12px; color:var(--ark-muted); margin-bottom:16px;">AP earned: 1 per 10 mins online. Can be purchased: 1000 AP = $5 USD (support tier). AP does not provide combat advantage.</p>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Dino Respawn (admin spawned)</div><div class="shop-item-desc">Admin respawns a lost tame — screenshot proof required. Not for raid-killed dinos.</div></div>
+        <div class="shop-item-price">800 AP<small>recovery</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Character Recovery</div><div class="shop-item-desc">Admin restores character levels after a bug-loss. Not for PvP deaths.</div></div>
+        <div class="shop-item-price">500 AP<small>recovery</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Custom Tribe Banner Color</div><div class="shop-item-desc">Admin sets a custom color dye on your tribe flag. Cosmetic only.</div></div>
+        <div class="shop-item-price">200 AP<small>cosmetic</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Structure Decay Pause (48hr)</div><div class="shop-item-desc">Pauses decay on your tribe's structures while travelling IRL. Max 1 per month.</div></div>
+        <div class="shop-item-price">600 AP<small>utility</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Dino Colour Change</div><div class="shop-item-desc">Admin applies custom colour regions to one dino. Cosmetic.</div></div>
+        <div class="shop-item-price">300 AP<small>cosmetic</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Name Change (in-game)</div><div class="shop-item-desc">Admin-assisted character rename.</div></div>
+        <div class="shop-item-price">100 AP<small>cosmetic</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Extra Dino Slot Pack</div><div class="shop-item-desc">+25 personal tame slots for your tribe. Max 2 purchases per wipe.</div></div>
+        <div class="shop-item-price">1000 AP<small>utility</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Employed Player Food Hamper Kit</div><div class="shop-item-desc">See Employed Player Kit section. For verified Discord role holders only.</div></div>
+        <div class="shop-item-price">FREE<small>role-gated</small></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Employed Player Kit (Discord Role Gated)</div>
+      <p style="font-size:13px; color:var(--ark-muted); margin-bottom:14px;">For players who cannot grind as much due to work. Verified via Discord with an admin. Usable once per 3 days. This is a time-equalizer kit, not a power kit.</p>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Resource Hamper</div><div class="shop-item-desc">1000x Thatch, 500x Wood, 300x Fiber, 200x Stone — enough to repair a medium base</div></div>
+        <div class="shop-item-price">FREE<small>3-day cd</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Kibble Pack (Classic)</div><div class="shop-item-desc">10x Simple Kibble, 5x Regular Kibble — speeds up passive tames</div></div>
+        <div class="shop-item-price">FREE<small>3-day cd</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Narco Stack</div><div class="shop-item-desc">200x Narcotics — classic taming staple</div></div>
+        <div class="shop-item-price">FREE<small>3-day cd</small></div>
+      </div>
+      <div class="shop-item">
+        <div><div class="shop-item-name">Gunpowder + Cementing Paste Bundle</div><div class="shop-item-desc">100x Gunpowder, 150x Cementing Paste — mid-game progression bump</div></div>
+        <div class="shop-item-price">FREE<small>3-day cd</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== DISCORD ===================== -->
+  <div class="section" id="section-discord">
+    <div class="section-title">Discord Server Setup</div>
+    <div class="section-desc">Complete channel structure, roles, bots, and configuration for the ARK Classic community Discord.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Channel Structure</div>
+
+        <div class="discord-category">
+          <div class="discord-cat-name">📣 Information</div>
+          <div class="discord-channel announce">announcements</div>
+          <div class="discord-channel text">server-rules</div>
+          <div class="discord-channel text">raid-rules</div>
+          <div class="discord-channel text">patch-notes</div>
+          <div class="discord-channel text">wipe-schedule</div>
+          <div class="discord-channel text">server-status</div>
+        </div>
+
+        <div class="discord-category">
+          <div class="discord-cat-name">🎮 In-Game</div>
+          <div class="discord-channel text">tribe-advertisements</div>
+          <div class="discord-channel text">looking-for-tribe</div>
+          <div class="discord-channel text">trade-market</div>
+          <div class="discord-channel text">raid-reports</div>
+          <div class="discord-channel text">base-spot-claims</div>
+          <div class="discord-channel announce">wipe-counter</div>
+        </div>
+
+        <div class="discord-category">
+          <div class="discord-cat-name">💬 Community</div>
+          <div class="discord-channel text">general</div>
+          <div class="discord-channel text">ark-classic-lore</div>
+          <div class="discord-channel text">screenshots</div>
+          <div class="discord-channel text">memes</div>
+          <div class="discord-channel text">suggestions</div>
+          <div class="discord-channel voice">🔊 General Voice</div>
+          <div class="discord-channel voice">🔊 Tribe Chat</div>
+        </div>
+
+        <div class="discord-category">
+          <div class="discord-cat-name">🛒 Shop & Support</div>
+          <div class="discord-channel text">shop-info</div>
+          <div class="discord-channel text">purchase-support</div>
+          <div class="discord-channel text">solo-request</div>
+          <div class="discord-channel text">admin-requests</div>
+          <div class="discord-channel text">ban-appeals</div>
+          <div class="discord-channel text">bug-reports</div>
+        </div>
+
+        <div class="discord-category">
+          <div class="discord-cat-name">📊 Server Logs (Admin Only)</div>
+          <div class="discord-channel text">rcon-log</div>
+          <div class="discord-channel text">raid-alerts</div>
+          <div class="discord-channel text">admin-chat</div>
+          <div class="discord-channel text">ban-log</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Roles</div>
+          <table>
+            <tr><th>Role</th><th>Color</th><th>How</th></tr>
+            <tr><td><span class="badge badge-red">Admin</span></td><td>Red</td><td>Manual</td></tr>
+            <tr><td><span class="badge badge-orange">Moderator</span></td><td>Orange</td><td>Manual</td></tr>
+            <tr><td><span class="badge badge-purple">Supporter</span></td><td>Purple</td><td>Shop purchase</td></tr>
+            <tr><td><span class="badge badge-blue">Employed</span></td><td>Blue</td><td>Admin verify</td></tr>
+            <tr><td><span class="badge badge-orange">Solo Survivor</span></td><td>Amber</td><td>Admin flag</td></tr>
+            <tr><td><span class="badge badge-green">Verified</span></td><td>Green</td><td>React to rules</td></tr>
+            <tr><td>Survivor</td><td>Grey</td><td>Default join</td></tr>
+            <tr><td>Tribe Leader</td><td>White</td><td>Self-assign</td></tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Bots to Add</div>
+          <ul class="rule-list">
+            <li><strong style="color:var(--ark-text)">MEE6</strong> — XP, levels, auto-moderation, welcome messages, reaction roles</li>
+            <li><strong style="color:var(--ark-text)">ArkBot (or custom webhook)</strong> — ARK server status, player count, RCON bridge</li>
+            <li><strong style="color:var(--ark-text)">Dyno</strong> — Advanced moderation, timed bans, anti-spam</li>
+            <li><strong style="color:var(--ark-text)">Carl-bot</strong> — Role menus, reaction roles (Verified, Tribe Leader)</li>
+            <li><strong style="color:var(--ark-text)">Sapphire/Statbot</strong> — Server analytics, member count tracker</li>
+            <li><strong style="color:var(--ark-text)">Ticket Tool</strong> — Support ticket system for admin-requests, ban-appeals</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Polls to Post at Launch</div>
+          <ul class="rule-list">
+            <li>🗳 What map are you starting on? (Island / Center / Scorched)</li>
+            <li>🗳 Solo or tribe this wipe?</li>
+            <li>🗳 Playstyle: Raider / Builder / Tamer / PvE Focused</li>
+            <li>🗳 Preferred raid window (morning / afternoon / evening)</li>
+            <li>🗳 Should we open a sandbox server if pop hits X? (if traction is high)</li>
+            <li>🗳 Monthly: What should we add to the shop?</li>
+            <li>🗳 End of wipe: Rate this wipe 1-10</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MARKETING ===================== -->
+  <div class="section" id="section-marketing">
+    <div class="section-title">Marketing & Launch Strategy</div>
+    <div class="section-desc">Pre-launch, launch day, and ongoing promotion plan. Target: ARK veterans, WoW Classic players, nostalgic console refugees.</div>
+
+    <div class="card">
+      <div class="card-title">Target Audience</div>
+      <div class="grid-3" style="gap:12px; margin-top:4px">
+        <div style="background:rgba(212,86,10,0.06); border:1px solid var(--ark-border-dim); padding:14px; border-radius:4px">
+          <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px">The Nostalgic Veteran</div>
+          <div style="font-size:12px; color:var(--ark-muted)">Hasn't played since 2017-2018. Quit after TEK/Extinction. Still remembers their first carno tame. Responds to "remember when ARK was actually fun?"</div>
+        </div>
+        <div style="background:rgba(212,86,10,0.06); border:1px solid var(--ark-border-dim); padding:14px; border-radius:4px">
+          <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px">The Casual With a Job</div>
+          <div style="font-size:12px; color:var(--ark-muted)">Loves survival games but hates 12hr grind-to-play-for-10-mins culture. Responds to "designed for players with jobs" and slower, safer progression.</div>
+        </div>
+        <div style="background:rgba(212,86,10,0.06); border:1px solid var(--ark-border-dim); padding:14px; border-radius:4px">
+          <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px">The Anti-Modern ARK Player</div>
+          <div style="font-size:12px; color:var(--ark-muted)">Actively hates ASA, Genesis, and modern power creep. Sees ARK2 as a failure. Responds to "No TEK. No Extinction crap. Just ARK."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Reddit Post — r/playark + r/ARK</div>
+      <div class="config-block">
+        <div class="config-filename">// Post Title</div>
+        <pre>We built a cluster to bring back Late-2017 ARK — no TEK, no Extinction, no power creep. Just ARK as it was.</pre>
+      </div>
+      <div class="config-block">
+        <div class="config-filename">// Post Body</div>
+        <pre>
+A dinosaur game should never have become so complicated.
+
+We built ARK Classic Cluster — a 5-map cluster (Island, Scorched, The Center, Ragnarok, Aberration) running 
+the game as it existed in December 2017. Before flying whales. Before healing owls. Before Titans.
+
+The philosophy is simple: if it wasn't in ARK before Aberration, it's not on our server.
+
+What we've done:
+→ All TEK engrams disabled server-side
+→ Tribe limit: 4. No alliances.
+→ 48hr wipe-start raid lock (set up your base without getting zerged)
+→ Level cap progression: 50 → 75 → 85 → 100 → 120 over the wipe
+→ WoW Classic-style map progression (each wipe adds the next era's DLC)
+→ Solo player system with ORP, 4x turret damage, and weight QoL
+→ Meaningful base spots across EVERY map — cave bases, land bases, obelisk zones
+
+This server is for players with jobs, players who haven't touched ARK in years, 
+and players who just want to tame a carno in peace.
+
+Launch: April 30, 2026
+discord.gg/YOURINVITE
+
+No pay-to-win. No modern meta. Just ARK.</pre>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Promotion Channels</div>
+        <ul class="rule-list">
+          <li>r/playark — main post + weekly update threads</li>
+          <li>r/ARK — cross-post</li>
+          <li>r/SurvivalGames — server launch post</li>
+          <li>ARK Server listing sites: TopARKServers, arkservers.net, battlemetrics.com</li>
+          <li>Discord server listing: Disboard, top.gg server category</li>
+          <li>ARK-focused Facebook groups (2017-era nostalgia groups)</li>
+          <li>YouTube — short "what is ARK Classic" explainer video (under 3 mins)</li>
+          <li>TikTok/Shorts — "remember when ARK was like this?" clip series</li>
+          <li>Partner with small ARK YouTubers / content creators</li>
+          <li>Direct outreach to dead ARK Discord servers (revival recruitment)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Launch Day Checklist</div>
+        <ul class="rule-list">
+          <li>All 4 launch maps live (Aberration delayed to Wipe 4)</li>
+          <li>Discord fully built, bots configured, channels live</li>
+          <li>ArkShop configured with all items and prices</li>
+          <li>Wipe countdown bot running in #wipe-counter</li>
+          <li>Reddit post goes live 24hrs before launch</li>
+          <li>Server listing submissions sent 48hrs before</li>
+          <li>Admin team online on launch day for 6hrs minimum</li>
+          <li>Wipe-start raid lock active (48hr timer running)</li>
+          <li>Welcome message + MOTD confirmed in-game</li>
+          <li>Backup system confirmed running (6hr auto-save)</li>
+          <li>Poll posted: "What map are you starting on?"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">If Traction Is Very High Very Fast</div>
+      <p style="font-size:13px; color:var(--ark-muted); line-height:1.7; margin-bottom:12px;">
+        If the queue is consistently >20 players and the server feels overcrowded within the first 2 weeks, trigger the overflow protocol:
+      </p>
+      <ul class="rule-list">
+        <li>Open Cluster 2 on the <strong style="color:var(--ark-text)">next Saturday</strong> after threshold is hit</li>
+        <li>Cluster 2 launches fresh, 2 weeks behind Cluster 1's progression</li>
+        <li>Cluster 2 joins the main cluster economy at Month 2</li>
+        <li>Post Discord poll: "Should we open a Sandbox/Creative server for community testing?" — vote drives decision</li>
+        <li>Sandbox server (if approved) runs separate, no cluster link, admin-event driven</li>
+        <li>Sandbox polls: modded dino votes, rate experiments, event maps</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== TIMELINE ===================== -->
+  <div class="section" id="section-timeline">
+    <div class="section-title">Launch Timeline</div>
+    <div class="section-desc">Week-by-week roadmap from now to launch and beyond. April 30 is the hard launch date.</div>
+
+    <div class="card">
+      <div class="card-title">Pre-Launch Phase</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">NOW — WEEK 1</div>
+          <div class="timeline-title">Infrastructure Purchase & Setup</div>
+          <div class="timeline-body">Purchase 5 Kamatera VPS servers + 1 management VPS. Install Ubuntu, SteamCMD, ARK Dedicated Server on all 4 launch maps. Configure cluster ID, shared directory, network ports. Install ArkShop + TribeManager plugins.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">WEEK 2</div>
+          <div class="timeline-title">Config Tuning & Testing</div>
+          <div class="timeline-body">Deploy all GameUserSettings.ini and Game.ini from this document. Test rate multipliers in-game. Block unraidable spots with admin pillars. Test tribe banner and raid block plugin. Verify TEK engrams are hidden. Test solo player ORP and turret multiplier.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">WEEK 3</div>
+          <div class="timeline-title">Discord & Shop Build</div>
+          <div class="timeline-body">Create Discord server with all channels and roles from this document. Add and configure all bots. Build ArkShop item list. Set up Ticket Tool for support. Configure raid-alert webhook. Set up wipe countdown bot.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">WEEK 4</div>
+          <div class="timeline-title">Beta Testing</div>
+          <div class="timeline-body">Invite 10–20 trusted players for a soft-launch test wipe. Test all systems under real load. Identify bugs, config issues, exploit spots. Adjust rates based on feedback. Collect testimonials for marketing.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">WEEK 5 (APR 16–22)</div>
+          <div class="timeline-title">Marketing Push</div>
+          <div class="timeline-body">Submit to all server listing sites. Post to Reddit (r/playark, r/ARK, r/SurvivalGames). Open Discord to public. Post launch countdown. Record short YouTube/TikTok video. Begin reaching out to small ARK content creators.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">APR 27–29</div>
+          <div class="timeline-title">Final Pre-Launch</div>
+          <div class="timeline-body">Final server wipe and reset. Confirm all plugins active. Post Reddit launch announcement 24hrs early. Admin team briefed and on standby. Raid lock timer configured for midnight launch start.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Launch & Post-Launch Phase</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">APR 30 — LAUNCH DAY 🚀</div>
+          <div class="timeline-title">Go Live</div>
+          <div class="timeline-body">Servers open at a set time (recommend 6PM UTC). Raid lock active. Admin team live for 6hrs. Welcome message + MOTD active. All 4 maps open simultaneously. Discord announcement ping.</div>
+        </div>
+        <div class="timeline-item future">
+          <div class="timeline-date">MAY 7 — WEEK 2</div>
+          <div class="timeline-title">Level Cap Opens to 75 + Raid Lock Lifts</div>
+          <div class="timeline-body">Raids now live. XP cap raised to 75 via RCON. Monitor for exploit abuse. Post Discord poll #1. Address any config issues from week 1. Check pop — if queue >20, prepare overflow cluster.</div>
+        </div>
+        <div class="timeline-item future">
+          <div class="timeline-date">MAY 14 — WEEK 3</div>
+          <div class="timeline-title">Level Cap 85 + Mid-Wipe Check</div>
+          <div class="timeline-body">Cap opens to 85. Run end-of-week-2 community poll. Review base spots — any unraidable holes discovered? Issue ban/admin actions. Community update post on Discord.</div>
+        </div>
+        <div class="timeline-item future">
+          <div class="timeline-date">MAY 21 — WEEK 4</div>
+          <div class="timeline-title">Level Cap 100 + Aberration Opens (Wipe 4 Only)</div>
+          <div class="timeline-body">Full level cap open. Aberration server goes live (on Wipe 4). Announce next wipe date. Run community poll on wipe rating and suggestions.</div>
+        </div>
+        <div class="timeline-item future">
+          <div class="timeline-date">JULY 30 — WIPE 1 END</div>
+          <div class="timeline-title">Wipe & Reset</div>
+          <div class="timeline-body">90-day wipe cycle complete. Collect end-of-wipe feedback poll. Award top player/tribe badges. Announce Wipe 2 start date. Reset all servers. Progress the map roster per WoW Classic model.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'COPIED!';
+    setTimeout(() => btn.textContent = 'COPY', 1500);
+  });
+}
+</script>
+</body>
+</html>
