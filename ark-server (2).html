@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARK: Survival Classic — The 2017 Revival</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #06080a;
+    --bg-dark: #0c0e12;
+    --bg-card: #12151a;
+    --bg-card-hover: #1a1d24;
+    --accent: #d4a853;
+    --accent-dim: #8a6e2f;
+    --accent-glow: rgba(212,168,83,0.15);
+    --accent-bright: #f0c866;
+    --red: #943838;
+    --red-bright: #d45a5a;
+    --green: #3d8a3d;
+    --green-bright: #5cb85c;
+    --blue: #3a6e8a;
+    --blue-bright: #5a9ec4;
+    --text: #c8c4b8;
+    --text-dim: #6e6b62;
+    --text-bright: #f0ece0;
+    --border: #1e2128;
+    --border-accent: #2a2e38;
+    --glow-sm: 0 0 20px rgba(212,168,83,0.08);
+    --glow-md: 0 0 40px rgba(212,168,83,0.12);
+    --glow-lg: 0 0 80px rgba(212,168,83,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    background:
+      radial-gradient(ellipse 90% 50% at 50% 30%, rgba(212,168,83,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 70% at 80% 70%, rgba(148,56,56,0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 15% 60%, rgba(58,110,138,0.03) 0%, transparent 60%),
+      var(--bg-deep);
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 250px;
+    background: linear-gradient(to top, var(--bg-deep), transparent);
+    z-index: 2;
+  }
+
+  .hero-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 120px,
+      rgba(212,168,83,0.015) 120px,
+      rgba(212,168,83,0.015) 121px
+    );
+    z-index: 1;
+  }
+
+  /* Embers */
+  .embers { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+
+  .ember {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-up linear infinite;
+    box-shadow: 0 0 6px var(--accent), 0 0 15px var(--accent-glow);
+  }
+
+  @keyframes float-up {
+    0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+    8% { opacity: 0.9; }
+    85% { opacity: 0.15; }
+    100% { transform: translateY(-10vh) translateX(50px) scale(0.2); opacity: 0; }
+  }
+
+  .hero-content { position: relative; z-index: 3; max-width: 950px; }
+
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 0.85rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: hero-in 1s 0.2s ease forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--accent-dim);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 7.5rem);
+    line-height: 0.95;
+    color: var(--text-bright);
+    letter-spacing: 0.06em;
+    opacity: 0;
+    animation: hero-in 1.2s 0.4s ease forwards;
+    text-shadow: var(--glow-lg);
+  }
+
+  .hero-title .line2 {
+    display: block;
+    font-size: 0.55em;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-top: 0.15em;
+  }
+
+  .hero-subtitle {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+    color: var(--text-dim);
+    max-width: 580px;
+    margin: 2rem auto 3rem;
+    opacity: 0;
+    animation: hero-in 1s 0.7s ease forwards;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: hero-in 1s 0.9s ease forwards;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 2.2rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    background: transparent;
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    color: var(--bg-deep);
+    box-shadow: var(--glow-md);
+    border-color: var(--accent);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg-deep);
+    border-color: var(--accent);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-bright);
+    border-color: var(--accent-bright);
+    box-shadow: var(--glow-lg);
+  }
+
+  .btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    opacity: 0;
+    animation: hero-in 1s 1.5s ease forwards;
+  }
+
+  .scroll-hint .line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--accent-dim), transparent);
+    margin: 0 auto;
+    animation: scroll-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 0.2; transform: scaleY(0.7); }
+    50% { opacity: 0.8; transform: scaleY(1); }
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-header { margin-bottom: 3.5rem; }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent-dim);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    color: var(--text-bright);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .section-desc {
+    font-weight: 300;
+    color: var(--text-dim);
+    margin-top: 1rem;
+    max-width: 600px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  /* ── MANIFESTO ── */
+  .manifesto {
+    padding: 7rem 2rem;
+    max-width: 820px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .manifesto-quote {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1.7rem, 4vw, 2.6rem);
+    font-weight: 300;
+    color: var(--text-bright);
+    line-height: 1.4;
+    position: relative;
+    padding: 0 1rem;
+  }
+
+  .manifesto-quote::before, .manifesto-quote::after {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--accent-dim);
+    opacity: 0.5;
+    position: absolute;
+    line-height: 1;
+  }
+
+  .manifesto-quote::before { content: '\201C'; top: -0.3em; left: -0.5rem; }
+  .manifesto-quote::after { content: '\201D'; bottom: -0.8em; right: -0.5rem; }
+
+  .manifesto-quote em { color: var(--accent); font-style: normal; }
+
+  .manifesto-body {
+    font-weight: 300;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.85;
+  }
+
+  .manifesto-body strong { color: var(--accent); font-weight: 500; }
+
+  .divider {
+    width: 50px; height: 1px;
+    background: var(--accent-dim);
+    margin: 3.5rem auto;
+  }
+
+  /* ── PILLARS ── */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .pillar {
+    background: var(--bg-card);
+    padding: 2.5rem 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .pillar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  .pillar:hover { background: var(--bg-card-hover); }
+  .pillar:hover::after { width: 100%; }
+
+  .pillar-icon {
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    display: block;
+    filter: grayscale(0.3);
+  }
+
+  .pillar h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .pillar p {
+    font-weight: 300;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 3.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 8px; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent-dim), var(--border) 80%, transparent);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tl-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -3.5rem; top: 6px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--bg-deep);
+    border: 2px solid var(--accent-dim);
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+
+  .tl-item:hover::before {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    background: var(--accent-dim);
+  }
+
+  .tl-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.2rem;
+  }
+
+  .tl-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+  }
+
+  .tl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.015);
+  }
+
+  .tag.gold { border-color: var(--accent-dim); color: var(--accent); }
+  .tag.red { border-color: var(--red); color: var(--red-bright); }
+  .tag.green { border-color: var(--green); color: var(--green-bright); }
+  .tag.blue { border-color: var(--blue); color: var(--blue-bright); }
+
+  .tl-body {
+    font-weight: 300;
+    color: var(--text-dim);
+    font-size: 0.93rem;
+    line-height: 1.75;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  .stat-item {
+    background: var(--bg-card);
+    padding: 1.75rem 1rem;
+    text-align: center;
+    transition: background 0.2s ease;
+  }
+
+  .stat-item:hover { background: var(--bg-card-hover); }
+
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-desc {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 0.35rem;
+  }
+
+  /* ── RULES ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .rule {
+    background: var(--bg-card);
+    padding: 2rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    transition: background 0.2s ease;
+  }
+
+  .rule:hover { background: var(--bg-card-hover); }
+
+  .rule-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent-dim);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 2.2rem;
+    text-align: right;
+  }
+
+  .rule h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+  }
+
+  .rule p {
+    font-weight: 300;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: rgba(212,168,83,0.03);
+    border-left: 2px solid var(--accent-dim);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+  }
+
+  .highlight-box p {
+    font-weight: 300;
+    color: var(--text);
+    font-size: 0.93rem;
+    line-height: 1.75;
+  }
+
+  .highlight-box strong { color: var(--accent); font-weight: 500; }
+
+  /* ── EMPLOYED PACKAGE ── */
+  .pkg-card {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-dim);
+    padding: 3rem;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pkg-card::before {
+    content: 'EMPLOYED';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 9rem;
+    color: rgba(212,168,83,0.025);
+    position: absolute;
+    top: -1.5rem; right: -0.5rem;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .pkg-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+
+  .pkg-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .pkg-card > p {
+    font-weight: 300;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    max-width: 620px;
+    position: relative;
+  }
+
+  .pkg-perks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+
+  .perk {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    background: rgba(212,168,83,0.05);
+    border: 1px solid rgba(212,168,83,0.12);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .perk svg { width: 12px; height: 12px; stroke: var(--accent-dim); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* ── TRADE FLOW ── */
+  .trade-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .trade-step {
+    background: var(--bg-card);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: background 0.2s ease;
+  }
+
+  .trade-step:hover { background: var(--bg-card-hover); }
+
+  .trade-step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--accent-dim);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  .trade-step h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .trade-step p {
+    font-weight: 300;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ── STUDY TRIBE CARD ── */
+  .study-card {
+    background: var(--bg-card);
+    border: 1px solid var(--blue);
+    padding: 2.5rem 3rem;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .study-card::before {
+    content: 'DATA';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 9rem;
+    color: rgba(58,110,138,0.04);
+    position: absolute;
+    bottom: -2rem; right: -0.5rem;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .study-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    filter: grayscale(0.2);
+  }
+
+  .study-body { flex: 1; min-width: 260px; position: relative; }
+
+  .study-body h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--blue-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+
+  .study-body p {
+    font-weight: 300;
+    font-size: 0.93rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+  }
+
+  /* ── CAPACITY ── */
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .cap-item {
+    background: var(--bg-card);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: background 0.2s ease;
+  }
+
+  .cap-item:hover { background: var(--bg-card-hover); }
+
+  .cap-map {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+
+  .cap-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .cap-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--text-bright);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0.5rem 0 2.5rem;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .footer-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--border);
+    transition: all 0.25s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  .footer-copy {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    opacity: 0.4;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .section { padding: 4rem 1.25rem; }
+    .manifesto { padding: 4rem 1.25rem; }
+    .pillars { grid-template-columns: 1fr; }
+    .rules-grid { grid-template-columns: 1fr; }
+    .trade-flow { grid-template-columns: 1fr; }
+    .cap-grid { grid-template-columns: repeat(2, 1fr); }
+    .timeline { padding-left: 2.5rem; }
+    .tl-item::before { left: -2.5rem; }
+    .pkg-card { padding: 2rem 1.5rem; }
+    .study-card { padding: 2rem 1.5rem; }
+    .stat-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero">
+  <div class="hero-lines"></div>
+  <div class="embers" id="embers"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">A Return to What ARK Was Meant to Be</div>
+    <h1 class="hero-title">
+      ARK
+      <span class="line2">Survival Classic</span>
+    </h1>
+    <p class="hero-subtitle">
+      None of this modern ARK nonsense. I never even played it. We're not making another ARK server. We're reviving ARK: Survival Evolved 2017, the version people actually fell in love with.
+    </p>
+    <div class="hero-actions">
+      <a href="https://discord.gg/wEwDmfVSCJ" target="_blank" class="btn btn-primary">
+        Join the Discord
+        <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+      </a>
+      <a href="#manifesto" class="btn">Read the Vision</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- ════════ MANIFESTO ════════ -->
+<section class="manifesto reveal" id="manifesto">
+  <div class="manifesto-quote">
+    A dinosaur game should never have become <em>this complicated</em>. Dinosaurs are the selling point — not flying whales with lasers.
+  </div>
+  <div class="divider"></div>
+  <p class="manifesto-body">
+    This server isn't built for the modern ARK player grinding the latest meta. It's built for those who haven't played in years. For those who remember when bases were on the ground. When cave spots mattered. When obelisk warfare was the endgame. When you'd farm with your tribe of four and feel like you'd earned something real.
+  </p>
+  <br>
+  <p class="manifesto-body">
+    This is <strong>ARK: Survival Classic</strong> — a 90-day wipe cycle designed towards and balanced for people with less time to play, built around slow progression, fair protection, and the understanding that everyone deserves the chance to build a crap pillar base and tame a negative melee giga without getting wiped by day two.
+  </p>
+</section>
+
+<!-- ════════ CORE PILLARS ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">Design Philosophy</div>
+    <h2 class="section-title">Core Pillars</h2>
+    <p class="section-desc">Every rule, every system, every decision works toward these principles.</p>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar">
+      <span class="pillar-icon">🦖</span>
+      <h3>Dinosaurs First</h3>
+      <p>No cryopods. No Managarmr. No Snow Owls healing through freeze. The creature meta returns to what it was — Rexes, Spinos, Carnos, Pteras. Tames you actually had to work for and protect. The game is about dinosaurs. We're keeping it that way.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">🏕️</span>
+      <h3>Land Bases, Real Spots</h3>
+      <p>When every base spot matters again, tribes spread out. Caves become contested. Cliff platforms, hidden valleys, and that weird spot behind the waterfall you'd never consider in modern ARK — they all become viable again. We want to see the whole map populated, not just the five meta spots.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">⏳</span>
+      <h3>Slow Burn, Safe Start</h3>
+      <p>Progression is gated week by week. Level caps, building limits, and tame caps increase in increments so no tribe can end-game rush on day one and wipe the server. Everyone gets time to settle, build, farm, and grow — at a pace that works for people with actual lives.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">⚔️</span>
+      <h3>Fair Warfare</h3>
+      <p>First 24 hours after wipe are open PvP — contest your base spot, fight for your ground. After that, a 48-hour raid lock kicks in so everyone can settle. Auto turrets come online Week 1. Heavy turrets don't arrive until Week 3. The siege phase is earned, not rushed.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">🤝</span>
+      <h3>Built for Workers</h3>
+      <p>Tribe limit of 4. Employed players can verify and receive a special shop. This isn't designed for greaseheads pulling 16-hour days. It's designed for the player who has actual responsibilities now.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">🗺️</span>
+      <h3>Era-Authentic Maps</h3>
+      <p>At the end of the 3 month wipe everyone's character is reset and maps released after 2017 will be added to the cluster each month in the same order they originally launched, following the WoW Classic model. Each month after the wipe introduces another chapter of ARK history as it actually happened. You'll re-live the timeline, not skip to the end of it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ WEEK-BY-WEEK PROGRESSION ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">Player Progression</div>
+    <h2 class="section-title">Week-by-Week Unlock</h2>
+    <p class="section-desc">Level caps, building limits, and tame caps increase each week. No one gets to skip the journey.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-label">Week 1 — The Land Grab</div>
+      <div class="tl-title">Foundations</div>
+      <div class="tl-tags">
+        <span class="tag gold">Level Cap: 68</span>
+        <span class="tag green">Auto Turrets Online</span>
+        <span class="tag red">24hr Open PvP → 48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        Wipe day hits. The first 24 hours are open warfare — contest base spots, fight for position, claim your ground. After that, raid lock activates for 48 hours so every tribe can settle in. Auto turrets are available from the start so real defences are possible early. No heavy turret nonsense. Opening PvP feels fair, scrappy, and honest. One base claim per tribe — no spam pillaring areas. Anyone caught foundation-spamming during raid lock earns a 7-day ban.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Week 2 — The Economy</div>
+      <div class="tl-title">War Machine Ramps Up</div>
+      <div class="tl-tags">
+        <span class="tag gold">Level Cap: 82</span>
+        <span class="tag">Vault Unlocked</span>
+        <span class="tag">Industrial Forge</span>
+        <span class="tag">Chemistry Bench</span>
+      </div>
+      <p class="tl-body">
+        The war economy begins. Industrial-scale production comes online. Tribes start stockpiling, forming alliances, negotiating trades. Vaults mean your loot finally has real protection. The trading marketplace (Discord bot) opens for business — list items, browse offers, fill orders, and negotiate deals through a structured system that keeps the community connected.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Week 3 — The Siege Phase</div>
+      <div class="tl-title">Proper War Begins</div>
+      <div class="tl-tags">
+        <span class="tag gold">Level Cap: 100</span>
+        <span class="tag red">Heavy Turrets Unlocked</span>
+      </div>
+      <p class="tl-body">
+        Now it gets real. Heavy turrets arrive, established bases become genuine fortresses, and the server enters the proper siege era. By now, every tribe has had fair time to build up. Raids are earned through preparation, not through getting online faster than everyone else on day one. This is where alliances are tested and wars begin for real.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Week 4 — New Frontier</div>
+      <div class="tl-title">Aberration Opens</div>
+      <div class="tl-tags">
+        <span class="tag gold">Level Cap: 115</span>
+        <span class="tag green">Aberration Map Launches</span>
+        <span class="tag red">48hr Raid Lock on New Map</span>
+      </div>
+      <p class="tl-body">
+        A brand new map joins the cluster. Aberration opens with its own 48-hour raid lock, giving everyone a fair shot at the underground. New tames, new resources, new base spots. A meaningful progression bump for those ready to venture deeper. The cluster starts to feel alive across multiple maps.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Week 6+ — Endgame</div>
+      <div class="tl-title">Final Chapter</div>
+      <div class="tl-tags">
+        <span class="tag gold">Level Cap: 120</span>
+        <span class="tag">End-Wipe Cap</span>
+      </div>
+      <p class="tl-body">
+        The final stretch. Maximum level reached, building and tame caps fully unlocked. The last weeks of the wipe are the culmination of everything built before — obelisk control, cross-map raiding, territory wars, and the kind of server-wide politics that only happen when everyone's been grinding the same cycle together. Then it all resets and the next era begins.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ KEY STATS ════════ -->
+<div class="section reveal" style="padding-top:0; padding-bottom:0;">
+  <div class="stat-strip">
+    <div class="stat-item">
+      <div class="stat-val">4</div>
+      <div class="stat-desc">Max Tribe Size</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">90</div>
+      <div class="stat-desc">Day Wipe Cycle</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">24h</div>
+      <div class="stat-desc">Open Warfare</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">48h</div>
+      <div class="stat-desc">Raid Lock Post-Wipe</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">7d</div>
+      <div class="stat-desc">Spam Ban</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SERVER RULES ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">Server Law</div>
+    <h2 class="section-title">The Rules</h2>
+    <p class="section-desc">Simple. Non-negotiable. Designed to keep the playing field level.</p>
+  </div>
+
+  <div class="rules-grid">
+    <div class="rule">
+      <div class="rule-num">01</div>
+      <div>
+        <h4>One Base Per Tribe</h4>
+        <p>You may claim one base location. Build around it, defend it, love it. No spam-pillaring secondary locations, no walling off resources, no land-grabbing empires.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-num">02</div>
+      <div>
+        <h4>No Foundation Spam</h4>
+        <p>Spam structures outside your base perimeter are prohibited. Only build around your claimed location. Violations during raid lock result in a 7-day ban — no warnings.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-num">03</div>
+      <div>
+        <h4>Tribe Limit: 4 Players</h4>
+        <p>Small tribes keep the balance. No mega-tribe alliances steamrolling the map. Four players, that's your army. Coordinate with allies if you want, but your roster stays at four.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-num">04</div>
+      <div>
+        <h4>Monthly Character Reset</h4>
+        <p>Every month, characters reset. This keeps progression cycling and prevents permanent power gaps between veterans and newcomers joining mid-wipe.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-num">05</div>
+      <div>
+        <h4>Respect the Raid Lock</h4>
+        <p>During raid lock windows (24h after each wipe and new map launch), all raiding is prohibited. This is your safe window to establish, build, and prepare. Violators face immediate action.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-num">06</div>
+      <div>
+        <h4>Incremental Build & Tame Caps</h4>
+        <p>Building piece limits and tame caps increase weekly. You can't build a mega-fortress in week one. Progression is collective — the whole server grows together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ WIPE ERA ROADMAP ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label" style="font-size:1.1rem; letter-spacing:0.3em;">The WoW Classic Model</div>
+    <h2 class="section-title">Wipe Era Roadmap</h2>
+    <p class="section-desc">At the end of each 90-day cycle, characters reset. Post-2017 maps are then added to the cluster once per month in the order they originally launched — reliving ARK history as it happened. This roadmap will only be activated if demand for ARK: Survival Classic exceeds capacity on the original cluster.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 1</div>
+      <div class="tl-title">Extinction + New Cluster</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Extinction</span>
+        <span class="tag">November 2018 — Paid Expansion</span>
+        <span class="tag red">24hr Open Warfare</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        At the end of the standard 3-month wipe, a brand new cluster is created containing the original maps — The Island, The Center, Scorched Earth, Ragnarok, and later Aberration. Extinction is the first post-2017 expansion to join this new cluster, bringing Earth back into the equation — corrupted creatures, orbital supply drops, and titan fights. 24 hours of open warfare followed by a 48-hour raid lock so everyone gets a fair start.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 2</div>
+      <div class="tl-title">Valguero</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Valguero</span>
+        <span class="tag">June 2019 — Free Official Map</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        A free official map with diverse biomes, underground cave systems, and the Deinonychus. Valguero expands the cluster with fresh base spots and new territory to contest.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 3</div>
+      <div class="tl-title">Genesis: Part 1</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Genesis: Part 1</span>
+        <span class="tag">February 2020 — Paid Expansion</span>
+        <span class="tag">Mission-Based Structure</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        The expansion pass content begins. Genesis: Part 1 introduced a mission-based structure — a departure from classic ARK. Added to the cluster in its original form as part of the historical timeline.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 4</div>
+      <div class="tl-title">Crystal Isles</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Crystal Isles</span>
+        <span class="tag">June 2020 — Free Official Map</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        Another free official map joins the rotation. Crystal Isles brings floating islands, crystal wyverns, and a visually distinct landscape to the growing cluster.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 5</div>
+      <div class="tl-title">Genesis: Part 2</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Genesis: Part 2</span>
+        <span class="tag">June 2021 — Final Paid Story Expansion</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        The final paid story expansion for ARK: Survival Evolved. Genesis: Part 2 closes out the original storyline and enters the cluster as the last premium content drop.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 6</div>
+      <div class="tl-title">Lost Island</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Lost Island</span>
+        <span class="tag">December 2021 — Free Official Map</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        A community-inspired free map featuring new creatures and varied terrain. Lost Island adds another layer of base spots and resource variety to the cluster.
+      </p>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-label">Post-Wipe Month 7</div>
+      <div class="tl-title">Fjordur</div>
+      <div class="tl-tags">
+        <span class="tag green">+ Fjordur</span>
+        <span class="tag">June 2022 — Final Free Official Map</span>
+        <span class="tag red">48hr Raid Lock</span>
+      </div>
+      <p class="tl-body">
+        The final major free official map for ARK: Survival Evolved. Fjordur marks the end of the roadmap — after this, the full history of ASE has been relived. The cycle resets and it all begins again.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ EMPLOYED PACKAGE ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">For People With Jobs</div>
+    <h2 class="section-title">The Employed Package</h2>
+  </div>
+
+  <div class="pkg-card">
+    <h3>Prove It. Get Rewarded.</h3>
+    <div class="pkg-sub">Verify your employment → Receive a free starter pack + shop access</div>
+    <p>
+      This server is built around the idea that you shouldn't need to be unemployed to compete in a survival game. Verify that you hold a job and you'll receive a starter pack and a heavily lenient unique shop to help bridge the gap between you and the players who can grind all day. Optional paid extras are available for those who want additional support — but the base pack and shop access is free.
+    </p>
+    <div class="pkg-perks">
+      <div class="perk">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Unique Shop Offers
+      </div>
+      <div class="perk">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Free Starter Kit
+      </div>
+      <div class="perk">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Verified Status
+      </div>
+      <div class="perk">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Optional Paid Extras
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ TRADING MARKETPLACE ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">In-Community Economy</div>
+    <h2 class="section-title">The Trading Marketplace</h2>
+    <p class="section-desc">A structured Discord trading bot. No backroom deals — everything goes through the system.</p>
+  </div>
+
+  <div class="trade-flow">
+    <div class="trade-step">
+      <div class="trade-step-num">01</div>
+      <h4>List or Browse</h4>
+      <p>Post items for sale with category, price, and your trader tier (I–IV). Or browse the marketplace and search by item type — weapons, blueprints, misc.</p>
+    </div>
+    <div class="trade-step">
+      <div class="trade-step-num">02</div>
+      <h4>Offer or Fill</h4>
+      <p>Click "Offer" to open a negotiation channel with the seller. Or post "Fill Orders" — buy requests that alert traders when someone can supply what you need.</p>
+    </div>
+    <div class="trade-step">
+      <div class="trade-step-num">03</div>
+      <h4>Negotiate</h4>
+      <p>Private trade channels open between buyer and seller. Accept, deny, or counter buttons. Channels auto-close after 15 minutes of inactivity. No wasted time.</p>
+    </div>
+    <div class="trade-step">
+      <div class="trade-step-num">04</div>
+      <h4>Complete Trade</h4>
+      <p>Both parties confirm via trade-success or trade-failed buttons. Reports available if needed. Listings expire after 3 days. Everything is tracked, transparent, and community-driven.</p>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:2rem;">
+    <p><strong>Why Force the System?</strong> All trades go through the marketplace. No bypassing it with friend invites and side deals. This keeps the economy visible, fair, and community-facing. Colour-coded UI, searchable categories, and easy item-selection buttons make it fast to use — not a chore.</p>
+  </div>
+</section>
+
+<!-- ════════ PROGRESSION STUDY ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">Community Research</div>
+    <h2 class="section-title">Progression Study Tribes</h2>
+  </div>
+
+  <div class="study-card">
+    <div class="study-icon">📊</div>
+    <div class="study-body">
+      <h3>Help Us Understand 2017 ARK</h3>
+      <p>
+        Sign up your tribe as a Progression Study participant. Throughout the wipe, publish your player stats, tame counts, building data, and progression milestones. Your data helps us understand how players reapproach 2017 ARK — what works, what's too fast, what's too slow — so we can fine-tune the experience for everyone.
+      </p>
+      <p style="margin-top:0.75rem;">
+        In return, participating tribes earn shop rewards for consistent, honest data contributions. The better we understand the data, the better the server becomes.
+      </p>
+      <span class="tag blue" style="margin-top:1rem; display:inline-block;">Earn Shop Rewards</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ CAPACITY ════════ -->
+<section class="section reveal">
+  <div class="section-header">
+    <div class="section-label">Server Infrastructure</div>
+    <h2 class="section-title">Capacity & Alpha Phase</h2>
+  </div>
+
+  <div class="cap-grid">
+    <div class="cap-item">
+      <div class="cap-map">The Island</div>
+      <div class="cap-num">50</div>
+      <div class="cap-label">Pop Cap</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-map">The Center</div>
+      <div class="cap-num">50</div>
+      <div class="cap-label">Pop Cap</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-map">Scorched Earth</div>
+      <div class="cap-num">50</div>
+      <div class="cap-label">Pop Cap</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-map">Ragnarok</div>
+      <div class="cap-num">50</div>
+      <div class="cap-label">Pop Cap</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-map">Aberration</div>
+      <div class="cap-num">50</div>
+      <div class="cap-label">Pop Cap</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:1.5rem;">
+    <p><strong>Alpha Version:</strong> Server opened for initial mingling, testing theories and extracting data. This is the foundation phase — we learn, we adjust, we build the experience right before full launch.</p>
+  </div>
+</section>
+
+<!-- ════════ CLOSING ════════ -->
+<section class="manifesto reveal" style="padding-top:3rem;">
+  <div class="divider"></div>
+  <div class="manifesto-quote" style="font-size:clamp(1.4rem,3.5vw,2.1rem);">
+    We want everyone to be <em>crap</em>, building pillar bases, taming Carnos, and having the time of their lives doing it.
+  </div>
+  <div class="divider"></div>
+  <p class="manifesto-body" style="margin-top:0;">
+    This server is for everyone. We will balance every tribe out as best we can. We are not aiming for anything specific like "good PvP" or "good raiding" — we are aiming to mess with the game files so much we replicate the 2017 ARK feel. It's a return to the version of the game that hooked you in the first place — before giant turtles, before Manas, before the game forgot it was about surviving on an island full of dinosaurs.
+  </p>
+  <br>
+  <p class="manifesto-body">
+    If that sounds like the ARK you've been missing — <strong>welcome home.</strong>
+  </p>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+  <div class="footer-brand">ARK: SURVIVAL CLASSIC</div>
+  <div class="footer-tagline">The 2017 Revival — Coming Soon</div>
+  <div class="footer-links">
+    <a href="https://discord.gg/wEwDmfVSCJ" target="_blank">Discord</a>
+    <a href="https://discord.gg/wEwDmfVSCJ" target="_blank">Server Rules</a>
+    <a href="https://discord.gg/wEwDmfVSCJ" target="_blank">Trading Marketplace</a>
+    <a href="https://discord.gg/wEwDmfVSCJ" target="_blank">Apply for Employed Pack</a>
+  </div>
+  <p class="footer-copy">This is a community project. ARK: Survival Evolved is a trademark of Studio Wildcard.</p>
+</footer>
+
+<!-- ════════ SCRIPTS ════════ -->
+<script>
+  // Embers
+  const ec = document.getElementById('embers');
+  for (let i = 0; i < 30; i++) {
+    const e = document.createElement('div');
+    e.className = 'ember';
+    e.style.left = Math.random() * 100 + '%';
+    e.style.animationDuration = (7 + Math.random() * 9) + 's';
+    e.style.animationDelay = Math.random() * 12 + 's';
+    const s = (1.5 + Math.random() * 2.5) + 'px';
+    e.style.width = s;
+    e.style.height = s;
+    ec.appendChild(e);
+  }
+
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(en => { if (en.isIntersecting) en.target.classList.add('visible'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
